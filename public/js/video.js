@@ -12,8 +12,6 @@ var recording = document.getElementById("recording");
 var startButton = document.getElementById("startButton");
 var stopButton = document.getElementById("stopButton");
 var downloadButton = document.getElementById("downloadButton");
-var downloadQuestionsButton = document.getElementById("downloadQuestionsButton");
-var saveButton = document.getElementById("saveButton");
 var toast = document.getElementById("toast");
 var questionsContainer = document.getElementById("questions");
 var mediaRecorder;
@@ -70,14 +68,8 @@ function startRecording() {
         mediaRecorder.onstop = function () {
             var blob = new Blob(recordedChunks, { type: 'video/webm' });
             recording.src = URL.createObjectURL(blob);
-            downloadButton.href = recording.src;
-            downloadButton.download = "RecordedVideo.webm";
-            // Create a blob for the questions and set the download link
-            var questionsBlob = new Blob([JSON.stringify(shuffledQuestions, null, 2)], { type: 'application/json' });
-            downloadQuestionsButton.href = URL.createObjectURL(questionsBlob);
-            downloadQuestionsButton.download = "RecordedQuestions.json";
-            saveButton.disabled = false;
-            saveButton.dataset.blobUrl = URL.createObjectURL(blob); // Store the blob URL for later use
+            downloadButton.disabled = false;
+            downloadButton.dataset.blobUrl = URL.createObjectURL(blob); // Store the blob URL for later use
             showToast('Video recording stopped.');
         };
         mediaRecorder.start();
@@ -85,7 +77,7 @@ function startRecording() {
         startButton.disabled = true;
         stopButton.disabled = false;
         stopButton.style.backgroundColor = "#dc3545"; // Set enabled color
-        saveButton.disabled = true;
+        downloadButton.disabled = true;
         showToast('Video recording started.');
         displayQuestions();
     })
@@ -102,34 +94,38 @@ function stopRecording() {
     stopButton.style.backgroundColor = "#6c757d"; // Set disabled color
     stream.getTracks().forEach(function (track) { return track.stop(); });
 }
-function saveVideo(blob) {
-    var formData = new FormData();
-    var videoFile = new File([blob], "recorded_video.webm", { type: "video/webm" });
-    formData.append('videoFile', videoFile);
-    // Convert shuffledQuestions array to a JSON Blob and append it to the form data
-    var questionsBlob = new Blob([JSON.stringify(shuffledQuestions)], { type: 'application/json' });
-    var questionsFile = new File([questionsBlob], "recorded_questions.json", { type: 'application/json' });
-    formData.append('questionsFile', questionsFile);
-    fetch('/video/upload', {
-        method: 'POST',
-        body: formData,
-    })
-        .then(function (response) { return response.text(); })
-        .then(function (result) { return console.log(result); })
-        .catch(function (error) { return console.error('Error uploading video:', error); });
+function downloadContent(videoBlob) {
+    // Create a temporary link element
+    var tempLink = document.createElement("a");
+    document.body.appendChild(tempLink);
+    // Download video file
+    var videoUrl = URL.createObjectURL(videoBlob);
+    tempLink.href = videoUrl;
+    tempLink.download = "recorded_video.webm";
+    tempLink.click();
+    URL.revokeObjectURL(videoUrl);
+    // Download questions file
+    var questionsBlob = new Blob([JSON.stringify(shuffledQuestions, null, 2)], { type: 'application/json' });
+    var questionsUrl = URL.createObjectURL(questionsBlob);
+    tempLink.href = questionsUrl;
+    tempLink.download = "recorded_questions.json";
+    tempLink.click();
+    URL.revokeObjectURL(questionsUrl);
+    // Clean up the temporary link
+    document.body.removeChild(tempLink);
 }
+downloadButton.addEventListener('click', function () {
+    var blobUrl = downloadButton.dataset.blobUrl;
+    fetch(blobUrl)
+        .then(function (response) { return response.blob(); })
+        .then(function (blob) {
+        downloadContent(blob);
+        showToast('Video and questions downloaded.');
+    })
+        .catch(function (error) { return console.error('Error downloading video:', error); });
+}, false);
 startButton.addEventListener('click', function () {
     startRecording();
     stopButton.disabled = false;
 }, false);
 stopButton.addEventListener('click', function () { return stopRecording(); }, false);
-saveButton.addEventListener('click', function () {
-    var blobUrl = saveButton.dataset.blobUrl;
-    fetch(blobUrl)
-        .then(function (response) { return response.blob(); })
-        .then(function (blob) {
-        saveVideo(blob);
-        showToast('Video saved.');
-    })
-        .catch(function (error) { return console.error('Error saving video:', error); });
-}, false);

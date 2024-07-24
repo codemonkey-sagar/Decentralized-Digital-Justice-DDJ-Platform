@@ -15,12 +15,8 @@
     <div class="column center">
       <button id="stopButton" class="button" disabled>Stop Recording</button>
       <h2>Recording</h2>
-      <video id="recording" width="640" height="250" controls></video>
-      <div class="download-buttons">
-        <a id="downloadButton" class="button" download>Download Video</a>
-        <a id="downloadQuestionsButton" class="button" download>Download Questions</a>
-      </div>
-      <button id="saveButton" class="button" disabled>Save Recording</button>
+      <video id="recording" width="640" height="480" controls></video>
+      <button id="downloadButton" class="button" disabled>Download Video and Questions</button>
     </div>
     <div class="column right">
       <h2>Questions</h2>
@@ -39,6 +35,10 @@
     </div>
     <div id="toast" class="toast">Security measure is standard</div>
   </main>
+
+  <footer>
+    <p>&copy; 2024 Video Recorder</p>
+  </footer>
 </div>
 
 <script src="{{ asset('js/video.js') }}"></script>
