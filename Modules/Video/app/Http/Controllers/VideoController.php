@@ -21,15 +21,22 @@ class VideoController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'video' => 'required|file|mimetypes:video/*|max:102400', // 100MB max size
+            'videoFile' => 'required|file|mimetypes:video/*',
+            'questionsFile' => 'required|file|mimetypes:application/json',
         ]);
 
-        $video = $request->file('video');
-        $path = $video->storeAs('public/videos', $video->getClientOriginalName());
+        $video = $request->file('videoFile');
+        $questions = $request->file('questionsFile');
 
-        return redirect()->route('video.index')->with('status', 'Video uploaded successfully!');
+        $videoPath = 'videos/' . $video->getClientOriginalName();
+        $questionsPath = 'videos/' . $questions->getClientOriginalName();
+
+        // Save the video file and the questions file to the storage/videos directory
+        Storage::disk('public')->putFileAs('videos', $video, $video->getClientOriginalName());
+        Storage::disk('public')->putFileAs('videos', $questions, $questions->getClientOriginalName());
+
+        return redirect()->route('video.index')->with('status', 'Video and questions uploaded successfully!');
     }
-
 
     public function show($id)
     {

@@ -14,9 +14,19 @@ use Modules\Video\Http\Controllers\VideoController;
 |
 */
 
-Route::prefix('video')->group(function () {
-    Route::get('/', [VideoController::class, 'index'])->name('video.index');
-    Route::get('/create', [VideoController::class, 'create'])->name('video.create');
-    Route::post('/store', [VideoController::class, 'store'])->name('video.store');
-    Route::get('/{id}', [VideoController::class, 'show'])->name('video.show');
+// Route::prefix('video')->group(function () {
+//     Route::get('/', [VideoController::class, 'index'])->name('video.index');
+//     Route::get('/create', [VideoController::class, 'create'])->name('video.create');
+//     Route::post('/store', [VideoController::class, 'store'])->name('video.store');
+//     Route::get('/{id}', [VideoController::class, 'show'])->name('video.show');
+// });
+
+
+Route::group(['middleware' => ['web']], function () {
+    Route::prefix('video')->group(function () {
+        Route::get('/', [VideoController::class, 'index'])->name('video.index');
+        Route::get('/create', [VideoController::class, 'create'])->name('video.create');
+        Route::post('/store', [VideoController::class, 'store'])->name('video.store');
+        Route::get('/{id}', [VideoController::class, 'show'])->name('video.show');
+    });
 });

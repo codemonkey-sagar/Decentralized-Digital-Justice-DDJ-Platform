@@ -3,12 +3,12 @@
 
 @section('content')
 <div class="container">
-  <h1>Videos</h1>
+  <h1>Video Verification</h1>
   @if (session('status'))
   <div class="alert alert-success">
     {{ session('status') }}
   </div>
   @endif
-  <a href="{{ route('video.create') }}">Upload New Video</a>
+  <a href="{{ route('video.create') }}">Start Recording your video</a>
 </div>
 @endsection
