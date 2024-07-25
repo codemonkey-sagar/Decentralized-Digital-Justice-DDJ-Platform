@@ -5,6 +5,8 @@ namespace Modules\Video\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class VideoController extends Controller
 {
@@ -35,6 +37,8 @@ class VideoController extends Controller
         Storage::disk('public')->putFileAs('videos', $video, $video->getClientOriginalName());
         Storage::disk('public')->putFileAs('videos', $questions, $questions->getClientOriginalName());
 
+        //echo (hash_file('sha256', $video));
+
         return redirect()->route('video.index')->with('status', 'Video and questions uploaded successfully!');
     }
 
@@ -42,5 +46,21 @@ class VideoController extends Controller
     {
         // Implement show functionality if needed
         return view('video::show');
+    }
+
+    public function storehash(Request $request)
+    {
+        $video_hash = $request->input('video_hash');
+        $questions = $request->input("questions");
+        foreach ($questions as $question) {
+
+            DB::table('vidque')->insert([
+                'video_hash' => $video_hash,
+                'question' => $question,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+        return response()->json(['message' => 'Video hash saved successfully'], 201);
     }
 }

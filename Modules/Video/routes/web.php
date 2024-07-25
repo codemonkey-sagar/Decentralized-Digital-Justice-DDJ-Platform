@@ -27,6 +27,7 @@ Route::group(['middleware' => ['web']], function () {
         Route::get('/', [VideoController::class, 'index'])->name('video.index');
         Route::get('/create', [VideoController::class, 'create'])->name('video.create');
         Route::post('/store', [VideoController::class, 'store'])->name('video.store');
+        Route::post('/storehash', [VideoController::class, 'storehash'])->name('video.storehash');
         Route::get('/{id}', [VideoController::class, 'show'])->name('video.show');
     });
 });
